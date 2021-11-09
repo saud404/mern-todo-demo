@@ -6,7 +6,9 @@
 //});
 
 //2 way
-const todos = [];
+let todos = [];
+let isEdit = false;
+let editId = null;
 
 const todoForm = document.querySelector("#todoForm");
 const btn = document.querySelector("#btn");
@@ -15,27 +17,51 @@ const description = document.querySelector("#description");
 
 btn.addEventListener("click", function () {
   const form = new FormData(todoForm);
-
   var formValues = {};
-
   for (var val of form.keys()) {
     formValues[val] = form.get(val);
   }
-  //console.log(formValues);
-  var todo = {
-    title: formValues.title,
-    description: formValues.description,
-    createdAt: new Date().toString(),
-    status: "active",
-  };
-  var todo = getTodo(formValues.title, formValues.description);
+
+  if (!isEdit) {
+    //console.log(formValues);
+    // var todo = {
+    //  title: formValues.title,
+    //  description: formValues.description,
+    //  createdAt: new Date().toString(),
+    //  status: "active",
+    //};
+    var todo = getTodo(formValues.title, formValues.description);
+    todos = [...todos, todo];
+    //todos.push(todo);
+  } else {
+    //Edit Funcitonality
+    // console.log(editId);
+    var newTodos = [...todos];
+    var idx = newTodos.findIndex((t) => t.id == editId);
+    var t = { ...newTodos[idx] };
+    t.title = formValues.title;
+    t.description = formValues.description;
+    newTodos[idx] = t;
+    releaseEditLock();
+    // console.log(newTodos);
+    todos = newTodos;
+  }
   title.value = null;
   description.value = null;
-
-  todos.push(todo);
   render(todos);
 });
 
+function editLock(id) {
+  // console.log(id);
+  editId = id;
+  isEdit = true;
+  btn.textContent = "Save";
+}
+function releaseEditLock() {
+  editId = null;
+  isEdit = false;
+  btn.textContent = "Add Todo";
+}
 // function makeItem(title, description, status) {
 //     const outerRow = document.createElement('div');
 //     outerRow.classList.add(['row', 'jumbotron','section']);
@@ -48,7 +74,16 @@ btn.addEventListener("click", function () {
 // }
 
 function getTodo(title, description) {
+  var id;
+  if (todos.length == 0) id = 1;
+  else {
+    var last = todos[todos.length - 1];
+    // var last = todos.slice(-1);
+    id = last.id + 1;
+  }
+
   return {
+    id,
     title,
     description,
     createdAt: new Date().toString(),
@@ -92,6 +127,22 @@ function renderATodoItem(todo) {
   statusBtn.className = "btn btn-info";
   statusBtn.textContent = "Marked Completed";
 
+  statusBtn.addEventListener("click", () => {
+    //Mutable Way
+    //var t = todos.find((t) => t.id == todo.id);
+    //t.status = "Completed";
+    //render(todos);
+
+    //Imutable Way
+    var newTodos = [...todos];
+    var idx = newTodos.findIndex((t) => t.id == todo.id);
+    var t = { ...newTodos[idx] };
+    t.status = "Completed";
+    newTodos[idx] = t;
+
+    todos = newTodos;
+    render(newTodos);
+  });
   markedCompletedDiv.appendChild(statusBtn);
 
   const actionDiv = document.createElement("div");
@@ -107,6 +158,11 @@ function renderATodoItem(todo) {
   statusBtn.className = "btn btn-primary";
   statusBtn.textContent = "Edit";
 
+  statusBtn.addEventListener("click", function () {
+    title.value = todo.title;
+    description.value = todo.description;
+    editLock(todo.id);
+  });
   editDiv.appendChild(statusBtn);
   row.appendChild(editDiv);
   //actionDiv.appendChild(row);
@@ -118,6 +174,15 @@ function renderATodoItem(todo) {
   statusBtn.className = "btn btn-danger";
   statusBtn.textContent = "Delete";
 
+  statusBtn.addEventListener("click", () => {
+    console.log(todo.id);
+    //Mutable Way
+
+    //IMutable way
+    var newTodos = todos.filter((t) => t.id != todo.id);
+    todos = newTodos;
+    render(newTodos);
+  });
   statusAction.appendChild(statusBtn);
   row.appendChild(statusAction);
 
