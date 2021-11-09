@@ -6,7 +6,8 @@
 //});
 
 //2 way
-let todos = [];
+const data = localStorage.getItem("todos");
+let todos = JSON.parse(data);
 let isEdit = false;
 let editId = null;
 
@@ -48,9 +49,13 @@ btn.addEventListener("click", function () {
   }
   title.value = null;
   description.value = null;
+  presistState(todos);
+  localStorage.getItem("todos", JSON.stringify(todos));
   render(todos);
 });
-
+function presistState(todos) {
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
 function editLock(id) {
   // console.log(id);
   editId = id;
@@ -141,6 +146,7 @@ function renderATodoItem(todo) {
     newTodos[idx] = t;
 
     todos = newTodos;
+    presistState(todos);
     render(newTodos);
   });
   markedCompletedDiv.appendChild(statusBtn);
@@ -181,6 +187,7 @@ function renderATodoItem(todo) {
     //IMutable way
     var newTodos = todos.filter((t) => t.id != todo.id);
     todos = newTodos;
+    presistState(todos);
     render(newTodos);
   });
   statusAction.appendChild(statusBtn);
