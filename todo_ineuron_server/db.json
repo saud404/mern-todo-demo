@@ -1,0 +1,17 @@
+{
+  "todos": [
+    {
+      "title": "Meeting",
+      "description": "Meeting at 6 PM",
+      "status": "active",
+      "id": 1
+    },
+    {
+      "title": "SAUD",
+      "description": "IS GOOD",
+      "createdAt": "Tue Nov 09 2021 13:51:10 GMT+0000 (Greenwich Mean Time)",
+      "status": "active",
+      "id": 3
+    }
+  ]
+}
